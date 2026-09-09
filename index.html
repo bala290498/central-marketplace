@@ -80,8 +80,9 @@
       white-space: pre-wrap; text-align: left; background: #f3faf7;
       border: 1px dashed #b7d4cb; border-radius: 14px; padding: 14px; font-size: 14px; margin: 12px 0;
     }
-    .fine { font-size: 12px; color: var(--muted); margin-top: 10px; }
-    .hint { font-size: 12px; color: var(--muted); font-weight: 600; margin: -2px 0 4px; text-align: left; }
+    .q { font-size: 20px; font-weight: 800; text-align: left; letter-spacing: -0.03em; margin: 16px 0 4px; }
+    .q:first-of-type { margin-top: 8px; }
+    .sub { font-size: 13px; color: var(--muted); text-align: left; margin: 0 0 8px; }
     .who { display: inline-block; background: #e7efe9; color: var(--teal); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; }
 
     footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0 40px; }
@@ -133,17 +134,22 @@
 
       <div id="screen2" hidden>
         <span class="who" id="whoLabel"></span>
-        <p id="askLine" style="text-align:left"></p>
-        <p class="hint" id="roleHint"></p>
+
+        <p class="q">Which area in Chennai?</p>
+        <p class="sub">So we can match you with what's genuinely nearby.</p>
         <label for="area">Area</label>
-        <p class="hint" id="areaHint"></p>
         <input id="area" placeholder="Velachery, OMR, Tambaram…" autocomplete="address-level2" />
+
+        <p class="q">What's your name?</p>
+        <p class="sub">So our office knows who's messaging.</p>
         <label for="name">Name</label>
-        <p class="hint" id="nameHint"></p>
         <input id="name" placeholder="Your name" autocomplete="name" />
-        <label for="mobile">WhatsApp / Mobile</label>
-        <p class="hint">Number we will use for this private desk chat</p>
+
+        <p class="q">Your WhatsApp / mobile</p>
+        <p class="sub">We'll open a pre-filled WhatsApp message — you just hit send.</p>
+        <label for="mobile">WhatsApp / Mobile number</label>
         <input id="mobile" inputmode="numeric" maxlength="10" placeholder="10-digit number" />
+
         <div class="row">
           <button class="btn btn-ghost" type="button" id="back2">Back</button>
           <button class="btn btn-wa" type="button" id="to3" style="flex:1">Next</button>
@@ -152,13 +158,13 @@
 
       <div id="screen3" hidden>
         <span class="who" id="whoLabel3"></span>
-        <p style="text-align:left">Check the message, then send it to the desk on WhatsApp.</p>
+        <p class="q">Check before you send</p>
+        <p class="sub">This is exactly what goes to our Team.</p>
         <div class="preview" id="preview"></div>
         <button class="btn btn-wa" type="button" id="sendWa">Send to WhatsApp desk</button>
         <div class="row">
           <button class="btn btn-ghost" type="button" id="back3">Back</button>
         </div>
-        <p class="fine">Opens your WhatsApp with this text ready. One private chat with the office.</p>
       </div>
     </section>
   </main>
@@ -208,19 +214,7 @@
       btn.addEventListener("click", () => {
         state.role = btn.dataset.role;
         $("whoLabel").textContent = label();
-        if (state.role === "customer") {
-          $("askLine").textContent = "Tell us where you are and how to reach you. Next step opens WhatsApp.";
-          $("roleHint").textContent = "For people, customers and buyers — example: tenant, parent, family, student looking for a PG, tiffin or local service.";
-          $("areaHint").textContent = "Example: Velachery · area where you need someone";
-          $("nameHint").textContent = "Example: your name, or family name";
-        } else {
-          $("askLine").textContent = "Tell us your area and a number. Next step opens WhatsApp.";
-          $("roleHint").textContent = "For property owners, service providers and local sellers.";
-          $("areaHint").textContent = "Example: Tambaram · area you serve or the property is in";
-          $("nameHint").textContent = "Example: your name, PG name, or shop name";
-        }
         show(2);
-        $("area").focus();
       });
     });
 
