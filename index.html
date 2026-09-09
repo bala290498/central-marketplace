@@ -3,84 +3,362 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Central Marketplace — Discover locally. Connect directly.</title>
+<title>Central Marketplace — Get listed or find a listing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F2E8;
+    --panel:#FFFFFF;
+    --panel-deep:#ECE8D8;
+    --ink:#16283F;
+    --ink-dim:#5B6472;
+    --marigold:#C97F1B;
+    --marigold-light:#E8A93B;
+    --vermillion:#A83828;
+    --leaf:#3F6B52;
+    --line: rgba(22,40,63,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Baloo 2', sans-serif; font-weight:700; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:0.03em;}
+
+  .card{
+    width:100%; max-width:420px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px 26px 26px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 4px 18px rgba(22,40,63,0.08);
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--marigold), var(--vermillion));
+  }
+
+  .brand-row{
+    display:flex; align-items:center; gap:14px; margin-bottom:28px;
+  }
+  .logo-badge{
+    width:52px; height:52px; flex-shrink:0;
+    background:var(--leaf); color:#FFFFFF;
+    border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:0.95rem;
+    letter-spacing:0.02em;
+  }
+  .brand-text .mark{
+    display:block; font-size:1.15rem; font-weight:800; font-family:'Baloo 2',sans-serif;
+    color:var(--ink); line-height:1.2;
+  }
+  .brand-text .city{
+    display:block; font-size:0.72rem; color:var(--ink-dim); text-transform:uppercase;
+    letter-spacing:0.08em; margin-top:2px;
+  }
+  .hero-heading{
+    font-family:'Lora', serif; font-weight:700;
+    font-size:2rem; line-height:1.18; color:var(--ink);
+    margin-bottom:14px; letter-spacing:-0.01em;
+  }
+
+  /* screens */
+  .screen{display:none;}
+  .screen.active{display:block; animation:fade 0.25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* welcome */
+  #welcome h1{
+    font-size:1.7rem; line-height:1.15; margin-bottom:10px;
+  }
+  #welcome p.sub{color:var(--ink-dim); font-size:0.94rem; margin-bottom:26px;}
+  .choice-btn{
+    width:100%; text-align:left;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--panel-deep); border:1px solid var(--line);
+    border-radius:10px; padding:18px 18px; margin-bottom:14px;
+    cursor:pointer; color:var(--ink); transition:border-color 0.18s ease, background 0.18s ease;
+  }
+  .choice-btn:hover, .choice-btn:focus-visible{border-color:var(--marigold); background:rgba(201,127,27,0.08);}
+  .choice-btn .ct{font-weight:600; font-family:'Baloo 2',sans-serif; font-size:1.08rem;}
+  .choice-btn .cs{font-size:0.83rem; color:var(--ink-dim); margin-top:3px;}
+  .choice-btn .arrow{font-size:1.3rem; color:var(--marigold); flex-shrink:0;}
+
+  /* progress dots */
+  .progress{
+    display:flex; align-items:center; gap:8px; margin-bottom:22px;
+  }
+  .progress .step-label{
+    font-size:0.72rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.08em;
+    margin-right:auto;
+  }
+  .dots{display:flex; gap:6px;}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--line); transition:background 0.2s ease, transform 0.2s ease;}
+  .dot.done{background:var(--leaf);}
+  .dot.current{background:var(--marigold); transform:scale(1.3);}
+
+  .back-btn{
+    background:none; border:none; color:var(--ink-dim); font-size:0.85rem;
+    cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin-bottom:18px;
+    padding:0;
+  }
+  .back-btn:hover{color:var(--marigold);}
+
+  .step h2{font-size:1.3rem; margin-bottom:6px;}
+  .step p.hint{font-size:0.86rem; color:var(--ink-dim); margin-bottom:18px;}
+
+  label{display:block; font-size:0.78rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;}
+  input[type=text], input[type=tel]{
+    width:100%; background:var(--panel-deep); border:1px solid var(--line);
+    border-radius:8px; padding:14px 14px; color:var(--ink); font-size:1rem;
+    font-family:'Work Sans', sans-serif;
+    margin-bottom:6px;
+  }
+  input::placeholder{color:var(--ink-dim); opacity:0.7;}
+  input:focus{outline:none; border-color:var(--marigold);}
+  .err{font-size:0.78rem; color:var(--vermillion); min-height:18px; margin-bottom:10px;}
+
+  .btn-row{display:flex; gap:10px; margin-top:8px;}
+  .btn{
+    flex:1; font-family:'Work Sans',sans-serif; font-weight:600; font-size:0.95rem;
+    padding:14px; border-radius:8px; border:1px solid transparent; cursor:pointer;
+    transition:transform 0.15s ease, background 0.2s ease;
+  }
+  .btn-primary{background:var(--marigold); color:#FFFFFF;}
+  .btn-primary:hover{background:var(--marigold-light); transform:translateY(-1px);}
+  .btn-secondary{background:none; border-color:var(--line); color:var(--ink);}
+  .btn-secondary:hover{border-color:var(--marigold); color:var(--marigold);}
+
+  /* summary */
+  .summary-box{
+    background:var(--panel-deep); border:1px solid var(--line); border-radius:10px;
+    padding:16px 18px; margin-bottom:20px; font-size:0.9rem;
+  }
+  .summary-box .row{display:flex; justify-content:space-between; padding:7px 0; border-top:1px solid var(--line);}
+  .summary-box .row:first-child{border-top:none;}
+  .summary-box .row span:first-child{color:var(--ink-dim);}
+  .summary-box .row span:last-child{font-weight:600; text-align:right;}
+
+  /* done */
+  #done{text-align:center;}
+  #done .icon{
+    width:52px; height:52px; border-radius:50%; background:rgba(63,107,82,0.16);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+    font-size:1.5rem; color:var(--leaf);
+  }
+  #done h2{font-size:1.3rem; margin-bottom:8px;}
+  #done p{color:var(--ink-dim); font-size:0.9rem; margin-bottom:22px;}
+
+  .wa-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; background:#25D366; color:#0a1728; font-weight:700;
+    padding:15px; border-radius:8px; text-decoration:none; font-size:1rem;
+    font-family:'Work Sans',sans-serif;
+    transition:transform 0.15s ease, background 0.2s ease;
+  }
+  .wa-btn:hover{background:#2fe077; transform:translateY(-1px);}
+
+  .restart{
+    display:block; text-align:center; margin-top:16px; font-size:0.85rem;
+    color:var(--ink-dim); text-decoration:none; cursor:pointer;
+  }
+  .restart:hover{color:var(--marigold);}
+</style>
 </head>
 <body>
 
-<div class="board">
-
-  <header class="site-header">
-    <div class="mark">
-      <svg class="pin" width="22" height="28" viewBox="0 0 22 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M11 27C11 27 20 16.8 20 10.5C20 5.25 15.9706 1 11 1C6.02944 1 2 5.25 2 10.5C2 16.8 11 27 11 27Z" stroke="currentColor" stroke-width="1.6"/>
-        <circle cx="11" cy="10.5" r="3.4" fill="currentColor"/>
-      </svg>
-      <span class="wordmark">Central Marketplace</span>
+<div class="card">
+  <div class="brand-row">
+    <div class="logo-badge">CMP</div>
+    <div class="brand-text">
+      <span class="mark">Central Marketplace</span>
+      <span class="city mono">Chennai Desk</span>
     </div>
-    <div class="header-note">launching soon</div>
-  </header>
+  </div>
 
-  <main class="hero">
-    <p class="kicker">A place for what's nearby</p>
-    <h1 class="headline">
-      Discover locally.<br>
-      <em>Connect directly.</em>
-    </h1>
-    <p class="lede">
-      Central Marketplace connects customers with property owners, product sellers, and service providers — so people find who they need, and providers get found, faster.
-    </p>
+  <!-- WELCOME -->
+  <div class="screen active" id="welcome">
+    <h1 class="hero-heading">Find the right local player.</h1>
+    <p class="sub">Area list for property, services and local sellers. You contact them directly.</p>
 
-    <form class="notify-form" id="notifyForm">
-      <label for="email" class="visually-hidden">Email address</label>
-      <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
-      <button type="submit">Notify me</button>
-    </form>
-    <p class="form-note" id="formNote">We'll send one email when the doors open. No spam, ever.</p>
-  </main>
+    <button class="choice-btn" onclick="startFlow('customer')">
+      <span>
+        <div class="ct">I need a listing</div>
+        <div class="cs">Find property, services, providers nearby</div>
+      </span>
+      <span class="arrow">→</span>
+    </button>
 
-  <section class="cards" aria-label="What you'll find on Central Marketplace">
-    <article class="card card--property">
-      <span class="card-pin" aria-hidden="true"></span>
-      <h2>Properties</h2>
-      <p>Flats, houses, shops, and land — listed straight from owners, no middlemen in between.</p>
-    </article>
+    <button class="choice-btn" onclick="startFlow('provider')">
+      <span>
+        <div class="ct">I want to be listed</div>
+        <div class="cs">Get your property, service, or business found</div>
+      </span>
+      <span class="arrow">→</span>
+    </button>
+  </div>
 
-    <article class="card card--product">
-      <span class="card-pin" aria-hidden="true"></span>
-      <h2>Products</h2>
-      <p>From home bakers to local makers — browse what's for sale in your own neighbourhood.</p>
-    </article>
+  <!-- STEP 1: AREA -->
+  <div class="screen" id="step1">
+    <button class="back-btn" onclick="goTo('welcome')">← Back</button>
+    <div class="progress">
+      <span class="step-label mono">Step 1 of 3</span>
+      <div class="dots"><span class="dot current" id="d1"></span><span class="dot" id="d2"></span><span class="dot" id="d3"></span></div>
+    </div>
+    <div class="step">
+      <h2>Which area in Chennai?</h2>
+      <p class="hint" id="hint1">e.g. Adyar, Velachery, Tambaram</p>
+      <label for="areaInput">Area</label>
+      <input type="text" id="areaInput" placeholder="Type your area" autocomplete="off">
+      <div class="err" id="err1"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="next1()">Next →</button>
+      </div>
+    </div>
+  </div>
 
-    <article class="card card--service">
-      <span class="card-pin" aria-hidden="true"></span>
-      <h2>Services</h2>
-      <p>Tutors, electricians, designers, and more — the people who get things done nearby.</p>
-    </article>
-  </section>
+  <!-- STEP 2: NAME -->
+  <div class="screen" id="step2">
+    <button class="back-btn" onclick="goTo('step1')">← Back</button>
+    <div class="progress">
+      <span class="step-label mono">Step 2 of 3</span>
+      <div class="dots"><span class="dot done" id="d1b"></span><span class="dot current" id="d2b"></span><span class="dot" id="d3b"></span></div>
+    </div>
+    <div class="step">
+      <h2>What's your name?</h2>
+      <p class="hint">So our office knows who's messaging.</p>
+      <label for="nameInput">Name</label>
+      <input type="text" id="nameInput" placeholder="Your full name" autocomplete="off">
+      <div class="err" id="err2"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="next2()">Next →</button>
+      </div>
+    </div>
+  </div>
 
-  <footer class="site-footer">
-    <p class="footer-tagline">Discover locally. Connect directly.</p>
-    <a class="footer-url" href="https://www.centralmarketplace.in">www.centralmarketplace.in</a>
-  </footer>
+  <!-- STEP 3: WHATSAPP -->
+  <div class="screen" id="step3">
+    <button class="back-btn" onclick="goTo('step2')">← Back</button>
+    <div class="progress">
+      <span class="step-label mono">Step 3 of 3</span>
+      <div class="dots"><span class="dot done" id="d1c"></span><span class="dot done" id="d2c"></span><span class="dot current" id="d3c"></span></div>
+    </div>
+    <div class="step">
+      <h2>Your WhatsApp / mobile</h2>
+      <p class="hint">We'll open a pre-filled WhatsApp message — you just hit send.</p>
+      <label for="waInput">WhatsApp / Mobile number</label>
+      <input type="tel" id="waInput" placeholder="10-digit number" autocomplete="off" inputmode="numeric" maxlength="10">
+      <div class="err" id="err3"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="showSummary()">Review →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="screen" id="summary">
+    <button class="back-btn" onclick="goTo('step3')">← Back</button>
+    <h2>Check before you send</h2>
+    <p class="hint" style="margin-bottom:16px;">This is exactly what goes to our WhatsApp.</p>
+    <div class="summary-box">
+      <div class="row"><span>Type</span><span id="sumType"></span></div>
+      <div class="row"><span>Area</span><span id="sumArea"></span></div>
+      <div class="row"><span>Name</span><span id="sumName"></span></div>
+      <div class="row"><span>WhatsApp</span><span id="sumWa"></span></div>
+    </div>
+    <a class="wa-btn" id="waLink" href="#" target="_blank" rel="noopener">
+      <span>Send on WhatsApp</span>
+    </a>
+    <span class="restart" onclick="goTo('welcome')">Start over</span>
+  </div>
+
+  <!-- DONE (shown after clicking the WA link, optional confirmation state) -->
+  <div class="screen" id="done">
+    <div class="icon">✓</div>
+    <h2>On its way</h2>
+    <p>WhatsApp should be open with your message ready — just tap send. Our office replies within office hours.</p>
+    <span class="restart" onclick="goTo('welcome')">Submit another</span>
+  </div>
 
 </div>
 
 <script>
-  document.getElementById('notifyForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const note = document.getElementById('formNote');
-    const email = document.getElementById('email').value;
-    if (email) {
-      note.textContent = "You're on the list — we'll write to " + email + " when we open.";
-      note.classList.add('form-note--confirmed');
-      this.querySelector('button').textContent = 'Added';
-      this.querySelector('button').disabled = true;
+  // ⚠️ Replace with the real office WhatsApp number, country code, no + or spaces (e.g. 919876543210)
+  const OFFICE_WHATSAPP_NUMBER = "917010584543";
+
+  let flowType = null; // 'customer' | 'provider'
+  const data = { area:"", name:"", wa:"" };
+
+  function goTo(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startFlow(type){
+    flowType = type;
+    const hint = document.getElementById('hint1');
+    hint.textContent = type === 'customer'
+      ? "So we can match you with what's genuinely nearby."
+      : "So customers searching that area can find you.";
+    goTo('step1');
+    document.getElementById('areaInput').focus();
+  }
+
+  function next1(){
+    const val = document.getElementById('areaInput').value.trim();
+    if(!val){ document.getElementById('err1').textContent = "Please enter your area."; return; }
+    data.area = val;
+    document.getElementById('err1').textContent = "";
+    goTo('step2');
+    document.getElementById('nameInput').focus();
+  }
+
+  function next2(){
+    const val = document.getElementById('nameInput').value.trim();
+    if(!val){ document.getElementById('err2').textContent = "Please enter your name."; return; }
+    data.name = val;
+    document.getElementById('err2').textContent = "";
+    goTo('step3');
+    document.getElementById('waInput').focus();
+  }
+
+  function showSummary(){
+    const val = document.getElementById('waInput').value.trim();
+    if(!/^\d{10}$/.test(val)){
+      document.getElementById('err3').textContent = "Enter a valid 10-digit number.";
+      return;
     }
-  });
+    data.wa = val;
+    document.getElementById('err3').textContent = "";
+
+    document.getElementById('sumType').textContent = flowType === 'customer' ? "Need a listing" : "Want to be listed";
+    document.getElementById('sumArea').textContent = data.area;
+    document.getElementById('sumName').textContent = data.name;
+    document.getElementById('sumWa').textContent = data.wa;
+
+    const message = flowType === 'customer'
+      ? `Hi, I need a listing in Chennai.\nArea: ${data.area}\nName: ${data.name}\nWhatsApp/Mobile: ${data.wa}`
+      : `Hi, I want to be listed.\nArea: ${data.area}\nName: ${data.name}\nWhatsApp/Mobile: ${data.wa}`;
+
+    const encoded = encodeURIComponent(message);
+    const link = document.getElementById('waLink');
+    link.href = `https://wa.me/${OFFICE_WHATSAPP_NUMBER}?text=${encoded}`;
+    link.onclick = () => setTimeout(() => goTo('done'), 400);
+
+    goTo('summary');
+  }
 </script>
 
 </body>
