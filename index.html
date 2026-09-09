@@ -53,13 +53,9 @@
       padding: 22px; box-shadow: var(--shadow); margin: 18px 0 28px;
     }
 
-    .steps { display: flex; gap: 8px; margin-bottom: 18px; }
-    .step {
-      flex: 1; text-align: center; font-size: 12px; font-weight: 800; color: var(--muted);
-      padding: 8px 6px; border-radius: 999px; background: var(--paper-2);
-    }
-    .step.on { background: var(--teal); color: #fff; }
-    .step.done { background: #f3ddd4; color: var(--teal); }
+    .steps { text-align: left; margin-bottom: 16px; }
+    .step-kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); }
+    .step-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; }
 
     .msg {
       background: var(--paper); border-radius: 18px 18px 18px 4px;
@@ -92,17 +88,6 @@
     .sub { font-size: 13px; color: var(--muted); text-align: left; margin: 0 0 8px; }
     .who { display: inline-block; background: #f3ddd4; color: var(--teal-2); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; }
 
-    .quotes { margin: -8px 0 28px; }
-    .quotes h2 { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 12px; text-align: left; line-height: 1.35; }
-    .quote-grid { display: grid; gap: 10px; }
-    @media (min-width: 700px) { .quote-grid { grid-template-columns: 1fr 1fr 1fr; } }
-    .quote {
-      background: var(--white); border: 1px solid var(--line); border-radius: 18px;
-      padding: 16px; text-align: left; box-shadow: var(--shadow);
-    }
-    .quote p { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-    .quote span { display: block; font-size: 12px; font-weight: 800; color: var(--teal); }
-
     footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0 40px; }
   </style>
 </head>
@@ -122,21 +107,16 @@
   <main class="wrap">
     <div class="hero">
       <h1>Find the right local player.</h1>
-      <p>Area list for property, services and local sellers. You contact them directly.</p>
+      <p>We connect people, customers and buyers with property owners, service providers and local sellers. The list is being built — start on WhatsApp with the desk.</p>
     </div>
 
     <section class="card" id="desk">
-      <div class="steps" aria-label="3 steps">
-        <div class="step on" id="s1">1 Welcome</div>
-        <div class="step" id="s2">2 Your details</div>
-        <div class="step" id="s3">3 WhatsApp</div>
+      <div class="steps" aria-label="Current step">
+        <div class="step-kicker" id="stepKicker">Step 1 of 3</div>
+        <div class="step-title" id="stepTitle">Welcome</div>
       </div>
 
       <div id="screen1">
-        <div class="msg">
-          <strong>Desk</strong>
-          Welcome to Central Marketplace Chennai. We connect people, customers and buyers with property owners, service providers and local sellers. The list is being built — start on WhatsApp with the desk.
-        </div>
         <div class="msg">
           <strong>Desk</strong>
           What brings you here today?
@@ -188,24 +168,6 @@
         </div>
       </div>
     </section>
-
-    <section class="quotes">
-      <h2>Testimonials</h2>
-      <div class="quote-grid">
-        <article class="quote">
-          <p>“Really thank you. I shifted to Velachery for work and had no idea whom to call for a PG. Brokers were confusing. The desk sent two numbers the same evening, I visited one, and it worked. Grateful I didn’t have to wander.”</p>
-          <span>Priya · Happy customer · Velachery</span>
-        </article>
-        <article class="quote">
-          <p>“Didn’t expect much when I listed my 2BHK. A parent looking near OMR messaged the next morning, then another enquiry that week. I speak to them directly, which I prefer. Thank you for getting the rooms in front of the right people.”</p>
-          <span>Ramesh · Property owner · OMR</span>
-        </article>
-        <article class="quote">
-          <p>“Fan stopped at 11pm and I didn’t want a random number from a group. Asked the desk for someone near Tambaram. They sent a contact, he picked up, and came. Small thing, but it saved the night. Thanks a lot.”</p>
-          <span>Karthik · Happy customer · Tambaram</span>
-        </article>
-      </div>
-    </section>
   </main>
 
   <footer>
@@ -217,15 +179,13 @@
     const state = { role: "customer", area: "", name: "", mobile: "" };
 
     function $(id) { return document.getElementById(id); }
+    const titles = { 1: "Welcome", 2: "Your details", 3: "WhatsApp" };
     function show(n) {
       $("screen1").hidden = n !== 1;
       $("screen2").hidden = n !== 2;
       $("screen3").hidden = n !== 3;
-      [1, 2, 3].forEach((i) => {
-        const el = $("s" + i);
-        el.classList.toggle("on", i === n);
-        el.classList.toggle("done", i < n);
-      });
+      $("stepKicker").textContent = "Step " + n + " of 3";
+      $("stepTitle").textContent = titles[n];
     }
 
     function label() {
