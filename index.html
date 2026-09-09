@@ -29,8 +29,14 @@
     button, input { font: inherit; }
     .wrap { width: min(720px, calc(100% - 32px)); margin: 0 auto; }
 
-    header { padding: 22px 0 8px; }
+    header { padding: 14px 0; position: sticky; top: 0; z-index: 20; background: rgba(247, 240, 234, 0.92); backdrop-filter: blur(10px); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .start {
+      flex-shrink: 0; border: 0; cursor: pointer; border-radius: 999px;
+      padding: 9px 14px; font-weight: 800; font-size: 13px;
+      background: var(--teal); color: #fff;
+    }
     .mark {
       width: 44px; height: 38px; border-radius: 11px; background: var(--teal); color: #fff;
       display: grid; place-items: center; font-size: 10px; font-weight: 800; letter-spacing: 0.02em;
@@ -41,6 +47,7 @@
     .hero h1 { font-family: Fraunces, Georgia, serif; font-size: clamp(30px, 7vw, 44px); letter-spacing: -0.03em; line-height: 1.1; margin: 8px 0; }
     .hero p { color: var(--ink-soft); }
 
+    #desk { scroll-margin-top: 72px; }
     .card {
       background: var(--white); border: 1px solid var(--line); border-radius: 28px;
       padding: 22px; box-shadow: var(--shadow); margin: 18px 0 28px;
@@ -85,16 +92,30 @@
     .sub { font-size: 13px; color: var(--muted); text-align: left; margin: 0 0 8px; }
     .who { display: inline-block; background: #f3ddd4; color: var(--teal-2); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; }
 
+    .quotes { margin: -8px 0 28px; }
+    .quotes h2 { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 12px; text-align: left; line-height: 1.35; }
+    .quote-grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .quote-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .quote {
+      background: var(--white); border: 1px solid var(--line); border-radius: 18px;
+      padding: 16px; text-align: left; box-shadow: var(--shadow);
+    }
+    .quote p { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+    .quote span { display: block; font-size: 12px; font-weight: 800; color: var(--teal); }
+
     footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0 40px; }
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap brand">
-      <span class="mark">CMP</span>
-      <span>Central Marketplace
-        <small>Chennai desk</small>
-      </span>
+    <div class="wrap nav">
+      <div class="brand">
+        <span class="mark">CMP</span>
+        <span>Central Marketplace
+          <small>Chennai desk</small>
+        </span>
+      </div>
+      <button class="start" type="button" id="getStarted">Get started</button>
     </div>
   </header>
 
@@ -167,6 +188,24 @@
         </div>
       </div>
     </section>
+
+    <section class="quotes">
+      <h2>Testimonials</h2>
+      <div class="quote-grid">
+        <article class="quote">
+          <p>“Really thank you. I shifted to Velachery for work and had no idea whom to call for a PG. Brokers were confusing. The desk sent two numbers the same evening, I visited one, and it worked. Grateful I didn’t have to wander.”</p>
+          <span>Priya · Happy customer · Velachery</span>
+        </article>
+        <article class="quote">
+          <p>“Didn’t expect much when I listed my 2BHK. A parent looking near OMR messaged the next morning, then another enquiry that week. I speak to them directly, which I prefer. Thank you for getting the rooms in front of the right people.”</p>
+          <span>Ramesh · Property owner · OMR</span>
+        </article>
+        <article class="quote">
+          <p>“Fan stopped at 11pm and I didn’t want a random number from a group. Asked the desk for someone near Tambaram. They sent a contact, he picked up, and came. Small thing, but it saved the night. Thanks a lot.”</p>
+          <span>Karthik · Happy customer · Tambaram</span>
+        </article>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -232,6 +271,11 @@
       $("whoLabel3").textContent = label();
       $("preview").textContent = buildMessage();
       show(3);
+    });
+
+    $("getStarted").addEventListener("click", () => {
+      show(1);
+      $("desk").scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     $("sendWa").addEventListener("click", () => {
