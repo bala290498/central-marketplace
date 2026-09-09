@@ -1,48 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central Marketplace — Coming Soon</title>
-  <meta
-    name="description"
-    content="Central Marketplace — Discover locally. Connect directly."
-  >
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Marketplace — Discover locally. Connect directly.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <main class="container">
-    <div class="content">
 
-      <div class="brand">
-        <h2>Central Marketplace</h2>
-      </div>
+<div class="board">
 
-      <div class="badge">COMING SOON</div>
-
-      <h1>
-        Discover locally.<br>
-        Connect directly.
-      </h1>
-
-      <p>
-        Central Marketplace is a local listing and promotion platform
-        that connects customers with property owners, product sellers,
-        and service providers—helping people find what they need and
-        helping providers get discovered faster.
-      </p>
-
-      <div class="construction">
-        🚧
-        <span>We're building something useful.</span>
-      </div>
-
-      <div class="website">
-        www.centralmarketplace.in
-      </div>
-
+  <header class="site-header">
+    <div class="mark">
+      <svg class="pin" width="22" height="28" viewBox="0 0 22 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 27C11 27 20 16.8 20 10.5C20 5.25 15.9706 1 11 1C6.02944 1 2 5.25 2 10.5C2 16.8 11 27 11 27Z" stroke="currentColor" stroke-width="1.6"/>
+        <circle cx="11" cy="10.5" r="3.4" fill="currentColor"/>
+      </svg>
+      <span class="wordmark">Central Marketplace</span>
     </div>
+    <div class="header-note">launching soon</div>
+  </header>
+
+  <main class="hero">
+    <p class="kicker">A place for what's nearby</p>
+    <h1 class="headline">
+      Discover locally.<br>
+      <em>Connect directly.</em>
+    </h1>
+    <p class="lede">
+      Central Marketplace connects customers with property owners, product sellers, and service providers — so people find who they need, and providers get found, faster.
+    </p>
+
+    <form class="notify-form" id="notifyForm">
+      <label for="email" class="visually-hidden">Email address</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      <button type="submit">Notify me</button>
+    </form>
+    <p class="form-note" id="formNote">We'll send one email when the doors open. No spam, ever.</p>
   </main>
+
+  <section class="cards" aria-label="What you'll find on Central Marketplace">
+    <article class="card card--property">
+      <span class="card-pin" aria-hidden="true"></span>
+      <h2>Properties</h2>
+      <p>Flats, houses, shops, and land — listed straight from owners, no middlemen in between.</p>
+    </article>
+
+    <article class="card card--product">
+      <span class="card-pin" aria-hidden="true"></span>
+      <h2>Products</h2>
+      <p>From home bakers to local makers — browse what's for sale in your own neighbourhood.</p>
+    </article>
+
+    <article class="card card--service">
+      <span class="card-pin" aria-hidden="true"></span>
+      <h2>Services</h2>
+      <p>Tutors, electricians, designers, and more — the people who get things done nearby.</p>
+    </article>
+  </section>
+
+  <footer class="site-footer">
+    <p class="footer-tagline">Discover locally. Connect directly.</p>
+    <a class="footer-url" href="https://www.centralmarketplace.in">www.centralmarketplace.in</a>
+  </footer>
+
+</div>
+
+<script>
+  document.getElementById('notifyForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const note = document.getElementById('formNote');
+    const email = document.getElementById('email').value;
+    if (email) {
+      note.textContent = "You're on the list — we'll write to " + email + " when we open.";
+      note.classList.add('form-note--confirmed');
+      this.querySelector('button').textContent = 'Added';
+      this.querySelector('button').disabled = true;
+    }
+  });
+</script>
+
 </body>
 </html>
