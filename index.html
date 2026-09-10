@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
       --ink: #3d2c2a;
@@ -75,10 +76,15 @@
     .row { display: flex; gap: 8px; margin-top: 12px; }
 
     label { display: block; text-align: left; font-size: 12px; font-weight: 800; color: var(--muted); margin: 12px 0 6px; }
-    input {
+    input, select {
       width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px;
       background: #fff; color: var(--ink);
     }
+    #map {
+      height: 200px; width: 100%; border-radius: 12px; border: 1px solid var(--line);
+      margin-top: 8px;
+    }
+    .map-note { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: left; }
     .preview {
       white-space: pre-wrap; text-align: left; background: #fbf3ee;
       border: 1px dashed #e4c4b6; border-radius: 14px; padding: 14px; font-size: 14px; margin: 12px 0;
@@ -136,6 +142,23 @@
       <div id="screen2" hidden>
         <span class="who" id="whoLabel"></span>
 
+        <p class="q">Which category?</p>
+        <p class="sub" id="catSub">Pick what you need, or what you offer.</p>
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="">Select a category</option>
+          <option>PG / rooms</option>
+          <option>Flat / house / rental</option>
+          <option>Tiffin / home food</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Mechanic</option>
+          <option>Housekeeping</option>
+          <option>Security</option>
+          <option>Local shop / seller</option>
+          <option>Other</option>
+        </select>
+
         <p class="q">Which area in Chennai?</p>
         <p class="sub">So we can match you with what's genuinely nearby.</p>
         <label for="area">Area</label>
@@ -149,99 +172,3 @@
         <p class="q">Your WhatsApp / mobile</p>
         <p class="sub">We'll open a pre-filled WhatsApp message — you just hit send.</p>
         <label for="mobile">WhatsApp / Mobile number</label>
-        <input id="mobile" inputmode="numeric" maxlength="10" placeholder="10-digit number" />
-
-        <div class="row">
-          <button class="btn btn-ghost" type="button" id="back2">Back</button>
-          <button class="btn btn-wa" type="button" id="to3" style="flex:1">Next</button>
-        </div>
-      </div>
-
-      <div id="screen3" hidden>
-        <span class="who" id="whoLabel3"></span>
-        <p class="q">Check before you send</p>
-        <p class="sub">This is exactly what goes to our Team.</p>
-        <div class="preview" id="preview"></div>
-        <button class="btn btn-wa" type="button" id="sendWa">Send to WhatsApp desk</button>
-        <div class="row">
-          <button class="btn btn-ghost" type="button" id="back3">Back</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    Central Marketplace · centralmarketplace.in
-  </footer>
-
-  <script>
-    const DESK = "917010584543";
-    const state = { role: "customer", area: "", name: "", mobile: "" };
-
-    function $(id) { return document.getElementById(id); }
-    const titles = { 1: "Welcome", 2: "Your details", 3: "WhatsApp" };
-    function show(n) {
-      $("screen1").hidden = n !== 1;
-      $("screen2").hidden = n !== 2;
-      $("screen3").hidden = n !== 3;
-      $("stepKicker").textContent = "Step " + n + " of 3";
-      $("stepTitle").textContent = titles[n];
-    }
-
-    function label() {
-      return state.role === "customer" ? "Customer" : "Provider";
-    }
-
-    function buildMessage() {
-      if (state.role === "customer") {
-        return (
-          "Hi, I am looking for a contact in Chennai.\n" +
-          "Area: " + state.area + "\n" +
-          "Name: " + state.name + "\n" +
-          "WhatsApp/Mobile: " + state.mobile
-        );
-      }
-      return (
-        "Hi, I want to be listed.\n" +
-        "Area: " + state.area + "\n" +
-        "Name: " + state.name + "\n" +
-        "WhatsApp/Mobile: " + state.mobile
-      );
-    }
-
-    document.querySelectorAll("[data-role]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.role = btn.dataset.role;
-        $("whoLabel").textContent = label();
-        show(2);
-      });
-    });
-
-    $("back2").addEventListener("click", () => show(1));
-    $("back3").addEventListener("click", () => show(2));
-
-    $("to3").addEventListener("click", () => {
-      state.area = $("area").value.trim();
-      state.name = $("name").value.trim();
-      state.mobile = $("mobile").value.replace(/\D/g, "").slice(-10);
-      if (!state.area || !state.name || state.mobile.length !== 10) {
-        alert("Please fill area, name and a 10-digit WhatsApp / mobile number.");
-        return;
-      }
-      $("whoLabel3").textContent = label();
-      $("preview").textContent = buildMessage();
-      show(3);
-    });
-
-    $("getStarted").addEventListener("click", () => {
-      show(1);
-      $("desk").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
-    $("sendWa").addEventListener("click", () => {
-      const url = "https://wa.me/" + DESK + "?text=" + encodeURIComponent(buildMessage());
-      window.open(url, "_blank");
-    });
-  </script>
-</body>
-</html>
