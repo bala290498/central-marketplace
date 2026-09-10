@@ -172,3 +172,173 @@
         <p class="q">Your WhatsApp / mobile</p>
         <p class="sub">We'll open a pre-filled WhatsApp message — you just hit send.</p>
         <label for="mobile">WhatsApp / Mobile number</label>
+        <input id="mobile" inputmode="numeric" maxlength="10" placeholder="10-digit number" />
+
+        <div id="mapWrap" hidden>
+          <p class="q">Pin your location</p>
+          <p class="sub">Optional. Tap the map or use your current location.</p>
+          <div class="row">
+            <button class="btn btn-ghost" type="button" id="useLoc">Use my location</button>
+            <button class="btn btn-ghost" type="button" id="clearPin">Clear pin</button>
+          </div>
+          <div id="map"></div>
+          <p class="map-note" id="mapNote">No pin yet. You can skip this.</p>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-ghost" type="button" id="back2">Back</button>
+          <button class="btn btn-wa" type="button" id="to3" style="flex:1">Next</button>
+        </div>
+      </div>
+
+      <div id="screen3" hidden>
+        <span class="who" id="whoLabel3"></span>
+        <p class="q">Check before you send</p>
+        <p class="sub">This is exactly what goes to our Team.</p>
+        <div class="preview" id="preview"></div>
+        <button class="btn btn-wa" type="button" id="sendWa">Send to WhatsApp desk</button>
+        <div class="row">
+          <button class="btn btn-ghost" type="button" id="back3">Back</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Central Marketplace · centralmarketplace.in
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const DESK = "919677691237";
+    const CHENNAI = [13.0827, 80.2707];
+    const state = { role: "customer", area: "", name: "", mobile: "", category: "", lat: "", lng: "" };
+    let map, marker;
+
+    function $(id) { return document.getElementById(id); }
+    const titles = { 1: "Welcome", 2: "Your details", 3: "WhatsApp" };
+    function show(n) {
+      $("screen1").hidden = n !== 1;
+      $("screen2").hidden = n !== 2;
+      $("screen3").hidden = n !== 3;
+      $("stepKicker").textContent = "Step " + n + " of 3";
+      $("stepTitle").textContent = titles[n];
+    }
+
+    function label() {
+      return state.role === "customer" ? "Customer" : "Provider";
+    }
+
+    function pinText() {
+      if (state.lat && state.lng) {
+        return "https://maps.google.com/?q=" + state.lat + "," + state.lng;
+      }
+      return "Not pinned";
+    }
+
+    function buildMessage() {
+      if (state.role === "customer") {
+        return (
+          "Hi, I am looking for a contact in Chennai.\n" +
+          "Category: " + state.category + "\n" +
+          "Area: " + state.area + "\n" +
+          "Name: " + state.name + "\n" +
+          "WhatsApp/Mobile: " + state.mobile
+        );
+      }
+      return (
+        "Hi, I want to be listed.\n" +
+        "Category: " + state.category + "\n" +
+        "Area: " + state.area + "\n" +
+        "Name: " + state.name + "\n" +
+        "WhatsApp/Mobile: " + state.mobile + "\n" +
+        "Location: " + pinText()
+      );
+    }
+
+    function setPin(lat, lng) {
+      state.lat = Number(lat).toFixed(6);
+      state.lng = Number(lng).toFixed(6);
+      if (!marker) marker = L.marker([lat, lng]).addTo(map);
+      else marker.setLatLng([lat, lng]);
+      map.setView([lat, lng], 15);
+      $("mapNote").textContent = "Pinned: " + state.lat + ", " + state.lng;
+    }
+
+    function initMap() {
+      if (map) {
+        setTimeout(() => map.invalidateSize(), 80);
+        return;
+      }
+      map = L.map("map").setView(CHENNAI, 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(map);
+      map.on("click", (e) => setPin(e.latlng.lat, e.latlng.lng));
+      setTimeout(() => map.invalidateSize(), 80);
+    }
+
+    document.querySelectorAll("[data-role]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.role = btn.dataset.role;
+        $("whoLabel").textContent = label();
+        $("catSub").textContent = state.role === "customer"
+          ? "What are you looking for?"
+          : "What do you want listed?";
+        $("mapWrap").hidden = state.role !== "provider";
+        show(2);
+        if (state.role === "provider") initMap();
+      });
+    });
+
+    $("back2").addEventListener("click", () => show(1));
+    $("back3").addEventListener("click", () => show(2));
+
+    $("to3").addEventListener("click", () => {
+      state.category = $("category").value;
+      state.area = $("area").value.trim();
+      state.name = $("name").value.trim();
+      state.mobile = $("mobile").value.replace(/\D/g, "").slice(-10);
+      if (!state.category || !state.area || !state.name || state.mobile.length !== 10) {
+        alert("Please choose a category and fill area, name and a 10-digit number.");
+        return;
+      }
+      $("whoLabel3").textContent = label();
+      $("preview").textContent = buildMessage();
+      show(3);
+    });
+
+    $("useLoc").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("Location is not available on this phone.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setPin(pos.coords.latitude, pos.coords.longitude),
+        () => alert("Could not read your location. Tap the map instead.")
+      );
+    });
+
+    $("clearPin").addEventListener("click", () => {
+      state.lat = "";
+      state.lng = "";
+      if (marker && map) {
+        map.removeLayer(marker);
+        marker = null;
+      }
+      $("mapNote").textContent = "No pin yet. You can skip this.";
+    });
+
+    $("getStarted").addEventListener("click", () => {
+      show(1);
+      $("desk").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    $("sendWa").addEventListener("click", () => {
+      const url = "https://wa.me/" + DESK + "?text=" + encodeURIComponent(buildMessage());
+      window.open(url, "_blank");
+    });
+  </script>
+</body>
+</html>
