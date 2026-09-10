@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central Marketplace · Chennai</title>
+  <meta name="description" content="Central Marketplace lists property owners, service providers and local sellers by area. Find the right local player. You contact them directly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --ink: #3d2c2a;
+      --ink-soft: #5c4a46;
+      --muted: #8a736c;
+      --paper: #f7f0ea;
+      --paper-2: #efe4db;
+      --white: #fffaf6;
+      --line: #ead9ce;
+      --teal: #eb4203;
+      --teal-2: #c93802;
+      --gold: #eb4203;
+      --wa: #eb4203;
+      --shadow: 0 18px 50px rgba(61, 44, 42, 0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: Manrope, system-ui, sans-serif; color: var(--ink); background: var(--paper);
+      line-height: 1.55; display: flex; flex-direction: column;
+    }
+    main { flex: 1 0 auto; }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    .wrap { width: min(1100px, calc(100% - 32px)); margin: 0 auto; }
+    .hero { max-width: 720px; margin-left: auto; margin-right: auto; text-align: center; padding: 12px 0 8px; }
+    .desk-wrap { width: min(720px, 100%); margin: 18px auto 28px; }
+    .features { margin: 8px 0 32px; }
+    .features-grid, .why-grid { display: grid; gap: 10px; align-items: stretch; }
+    @media (min-width: 700px) {
+      .features-grid, .why-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .features h2, .why h2 { font-size: clamp(24px, 4vw, 32px); letter-spacing: -0.03em; font-weight: 800; margin-bottom: 14px; }
+    .features h2 em, .why h2 em { font-style: normal; color: var(--teal); }
+    .features-grid .feat, .why-grid .feat { margin: 0; min-height: 120px; }
+    .feat {
+      background: var(--white); border: 1px solid var(--line); border-radius: 18px;
+      padding: 14px 16px; text-align: left; box-shadow: var(--shadow);
+      display: flex; gap: 14px; align-items: center;
+      min-height: 96px; height: 100%; width: 100%;
+    }
+    .feat i {
+      flex-shrink: 0; width: 52px; height: 52px; border-radius: 14px;
+      background: #f8ece6; color: var(--teal); display: grid; place-items: center;
+      font-style: normal; font-size: 24px; font-weight: 800; line-height: 1;
+    }
+    .feat > div { min-width: 0; flex: 1; }
+    .feat strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .feat p { font-size: 13px; color: var(--ink-soft); }
+    .why { margin: 8px 0 36px; }
+
+    header { padding: 14px 0; position: sticky; top: 0; z-index: 20; background: rgba(247, 240, 234, 0.92); backdrop-filter: blur(10px); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .start {
+      flex-shrink: 0; border: 0; cursor: pointer; border-radius: 999px;
+      padding: 9px 14px; font-weight: 800; font-size: 13px;
+      background: var(--teal); color: #fff;
+    }
+    .mark {
+      width: 44px; height: 38px; border-radius: 11px; background: var(--teal); color: #fff;
+      display: grid; place-items: center; font-size: 10px; font-weight: 800; letter-spacing: 0.02em;
+    }
+    .brand small { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    .hero h1 { font-family: Fraunces, Georgia, serif; font-size: clamp(30px, 7vw, 44px); letter-spacing: -0.03em; line-height: 1.1; margin: 8px 0; }
+    .hero p { color: var(--ink-soft); }
+    #desk { scroll-margin-top: 72px; }
+    .card {
+      background: var(--white); border: 1px solid var(--line); border-radius: 28px;
+      padding: 22px; box-shadow: var(--shadow); margin: 0;
+    }
+    .steps { text-align: left; margin-bottom: 16px; }
+    .step-kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); }
+    .step-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; }
+    .msg {
+      background: var(--paper); border-radius: 18px 18px 18px 4px;
+      padding: 14px 16px; margin-bottom: 10px; text-align: left;
+    }
+    .msg strong { display: block; font-size: 13px; color: var(--teal); margin-bottom: 4px; }
+    .choice { display: grid; gap: 10px; margin-top: 14px; }
+    .choice button, .btn {
+      width: 100%; border: 0; cursor: pointer; border-radius: 16px;
+      padding: 14px 16px; font-weight: 800; text-align: left;
+    }
+    .choice button { background: #f8ece6; color: var(--ink); border: 1px solid #edd5cb; }
+    .choice button:hover { background: #f3ddd4; }
+    .choice button small { display: block; font-weight: 600; color: var(--muted); margin-top: 2px; }
+    .btn-wa { background: var(--wa); color: #fff; text-align: center; border-radius: 999px; }
+    .btn-ghost { background: transparent; border: 1px solid var(--line); text-align: center; border-radius: 999px; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    label { display: block; text-align: left; font-size: 12px; font-weight: 800; color: var(--muted); margin: 12px 0 6px; }
+    input, select {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+      background: #fff; color: var(--ink);
+    }
+    #map { height: 200px; width: 100%; border-radius: 12px; border: 1px solid var(--line); margin-top: 8px; }
+    .map-note { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: left; }
+    .preview {
+      white-space: pre-wrap; text-align: left; background: #fbf3ee;
+      border: 1px dashed #e4c4b6; border-radius: 14px; padding: 14px; font-size: 14px; margin: 12px 0;
+    }
+    .q { font-size: 20px; font-weight: 800; text-align: left; letter-spacing: -0.03em; margin: 16px 0 4px; }
+    .q:first-of-type { margin-top: 8px; }
+    .sub { font-size: 13px; color: var(--muted); text-align: left; margin: 0 0 8px; }
+    .who { display: inline-block; background: #f3ddd4; color: var(--teal-2); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; }
+    footer {
+      background: var(--teal); color: #fff; text-align: center;
+      font-size: 14px; padding: 28px 16px 40px; margin: 0; width: 100%; flex: 1 0 auto;
+    }
+    footer .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin-bottom: 10px; }
+    footer a { color: #fff; font-weight: 800; text-decoration: underline; }
+    footer p { opacity: 0.9; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">
+        <span class="mark">CMP</span>
+        <span>Central Marketplace
+          <small>Chennai desk</small>
+        </span>
+      </div>
+      <button class="start" type="button" id="getStarted">Get started</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <h1>Find the right local player.</h1>
+      <p>We connect people, customers and buyers with property owners, service providers and local sellers. The list is being built — start on WhatsApp with the desk.</p>
+    </div>
+
+    <div class="desk-wrap">
+    <section class="card" id="desk">
+      <div class="steps" aria-label="Current step">
+        <div class="step-kicker" id="stepKicker">Step 1 of 3</div>
+        <div class="step-title" id="stepTitle">Welcome</div>
+      </div>
+      <div id="screen1">
+        <div class="msg">
+          <strong>Desk</strong>
+          What brings you here today?
+        </div>
+        <div class="choice">
+          <button type="button" data-role="customer">
+            I am looking for a contact
+            <small>Find property, services, providers nearby</small>
+          </button>
+          <button type="button" data-role="provider">
+            I want to be listed
+            <small>Get your property, service, or business found</small>
+          </button>
+        </div>
+      </div>
+      <div id="screen2" hidden>
+        <span class="who" id="whoLabel"></span>
+        <p class="q">Which category?</p>
+        <p class="sub" id="catSub">Pick what you need, or what you offer.</p>
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="">Select a category</option>
+          <option>PG / Rentals / Buy Property / Rooms</option>
+          <option>Home Foods</option>
+          <option>Local Sellers / Wholesalers</option>
+          <option>Home Services (Electrician, Plumber, Cleaning, Services, Repairs etc)</option>
+          <option>Professionals (Doctors, Lawyers, Editors etc)</option>
+        </select>
+        <p class="q">Which area in Chennai?</p>
+        <p class="sub">So we can match you with what's genuinely nearby.</p>
+        <label for="area">Area</label>
+        <input id="area" placeholder="Velachery, OMR, Tambaram…" autocomplete="address-level2" />
+        <p class="q">What's your name?</p>
+        <p class="sub">So our office knows who's messaging.</p>
+        <label for="name">Name</label>
+        <input id="name" placeholder="Your name" autocomplete="name" />
+        <p class="q">Your WhatsApp / mobile</p>
+        <p class="sub">We'll open a pre-filled WhatsApp message — you just hit send.</p>
+        <label for="mobile">WhatsApp / Mobile number</label>
+        <input id="mobile" inputmode="numeric" maxlength="10" placeholder="10-digit number" />
+        <div id="mapWrap" hidden>
+          <p class="q">Pin your location</p>
+          <p class="sub">Optional. Tap the map or use your current location.</p>
+          <div class="row">
+            <button class="btn btn-ghost" type="button" id="useLoc">Use my location</button>
+            <button class="btn btn-ghost" type="button" id="clearPin">Clear pin</button>
+          </div>
+          <div id="map"></div>
+          <p class="map-note" id="mapNote">No pin yet. You can skip this.</p>
+        </div>
+        <div class="row">
+          <button class="btn btn-ghost" type="button" id="back2">Back</button>
+          <button class="btn btn-wa" type="button" id="to3" style="flex:1">Next</button>
+        </div>
+      </div>
+      <div id="screen3" hidden>
+        <span class="who" id="whoLabel3"></span>
+        <p class="q">Check before you send</p>
+        <p class="sub">This is exactly what goes to our Team.</p>
+        <div class="preview" id="preview"></div>
+        <button class="btn btn-wa" type="button" id="sendWa">Send to WhatsApp desk</button>
+        <div class="row">
+          <button class="btn btn-ghost" type="button" id="back3">Back</button>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <section class="features">
+      <h2>Our <em>focus</em></h2>
+      <div class="features-grid">
+        <article class="feat"><i>⌂</i><div><strong>PG / Rentals / Buy Property / Rooms</strong><p>Property owners and people looking for a place in an area.</p></div></article>
+        <article class="feat"><i>🍽</i><div><strong>Home Foods</strong><p>Tiffin, lunch and home-cooked food listed by area.</p></div></article>
+        <article class="feat"><i>▣</i><div><strong>Local Sellers / Wholesalers</strong><p>Local shops and wholesale contacts in the neighbourhood.</p></div></article>
+        <article class="feat"><i>⚒</i><div><strong>Home Services</strong><p>Electrician, plumber, cleaning, services, repairs etc.</p></div></article>
+        <article class="feat"><i>⚖</i><div><strong>Professionals</strong><p>Doctors, lawyers, editors etc.</p></div></article>
+      </div>
+    </section>
+
+    <section class="why">
+      <h2>Why <em>Central Marketplace</em>?</h2>
+      <div class="why-grid">
+        <article class="feat"><i>☎</i><div><strong>Direct contact details</strong><p>We pass the number. You speak to the player yourself.</p></div></article>
+        <article class="feat"><i>✓</i><div><strong>Stress-free finding</strong><p>One desk, one area list. No groups. No wandering.</p></div></article>
+        <article class="feat"><i>↻</i><div><strong>Feedback loop</strong><p>Every customer and provider has a private channel from day one.</p></div></article>
+        <article class="feat"><i>●</i><div><strong>Continuous monitoring</strong><p>If someone reports a fake or poor listing, the desk removes it.</p></div></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot-links">
+      <a href="terms.html" target="_blank" rel="noopener">T&amp;C</a>
+      <a href="https://wa.me/919677691237?text=Hi%2C%20I%20want%20to%20report%20an%20issue." target="_blank" rel="noopener">Report issue</a>
+      <a href="mailto:contact@centralmarketplace.in">contact@centralmarketplace.in</a>
+      <a href="mailto:careers@centralmarketplace.in">careers@centralmarketplace.in</a>
+    </div>
+    <p>Central Marketplace · Chennai Desk</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const DESK = "919677691237";
+    const CHENNAI = [13.0827, 80.2707];
+    const state = { role: "customer", area: "", name: "", mobile: "", category: "", lat: "", lng: "" };
+    let map, marker;
+    function $(id) { return document.getElementById(id); }
+    const titles = { 1: "Welcome", 2: "Your details", 3: "WhatsApp" };
+    function show(n) {
+      $("screen1").hidden = n !== 1;
+      $("screen2").hidden = n !== 2;
+      $("screen3").hidden = n !== 3;
+      $("stepKicker").textContent = "Step " + n + " of 3";
+      $("stepTitle").textContent = titles[n];
+    }
+    function label() { return state.role === "customer" ? "Customer" : "Provider"; }
+    function pinText() {
+      return (state.lat && state.lng) ? "https://maps.google.com/?q=" + state.lat + "," + state.lng : "Not pinned";
+    }
+    function buildMessage() {
+      if (state.role === "customer") {
+        return "Hi, I am looking for a contact in Chennai.\nCategory: " + state.category + "\nArea: " + state.area + "\nName: " + state.name + "\nWhatsApp/Mobile: " + state.mobile;
+      }
+      return "Hi, I want to be listed.\nCategory: " + state.category + "\nArea: " + state.area + "\nName: " + state.name + "\nWhatsApp/Mobile: " + state.mobile + "\nLocation: " + pinText();
+    }
+    function setPin(lat, lng) {
+      state.lat = Number(lat).toFixed(6);
+      state.lng = Number(lng).toFixed(6);
+      if (!marker) marker = L.marker([lat, lng]).addTo(map);
+      else marker.setLatLng([lat, lng]);
+      map.setView([lat, lng], 15);
+      $("mapNote").textContent = "Pinned: " + state.lat + ", " + state.lng;
+    }
+    function initMap() {
+      if (map) { setTimeout(() => map.invalidateSize(), 80); return; }
+      map = L.map("map").setView(CHENNAI, 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
+      map.on("click", (e) => setPin(e.latlng.lat, e.latlng.lng));
+      setTimeout(() => map.invalidateSize(), 80);
+    }
+    document.querySelectorAll("[data-role]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.role = btn.dataset.role;
+        $("whoLabel").textContent = label();
+        $("catSub").textContent = state.role === "customer" ? "What are you looking for?" : "What do you want listed?";
+        $("mapWrap").hidden = state.role !== "provider";
+        show(2);
+        if (state.role === "provider") initMap();
+      });
+    });
+    $("back2").addEventListener("click", () => show(1));
+    $("back3").addEventListener("click", () => show(2));
+    $("to3").addEventListener("click", () => {
+      state.category = $("category").value;
+      state.area = $("area").value.trim();
+      state.name = $("name").value.trim();
+      state.mobile = $("mobile").value.replace(/\D/g, "").slice(-10);
+      if (!state.category || !state.area || !state.name || state.mobile.length !== 10) {
+        alert("Please choose a category and fill area, name and a 10-digit number.");
+        return;
+      }
+      $("whoLabel3").textContent = label();
+      $("preview").textContent = buildMessage();
+      show(3);
+    });
+    $("useLoc").addEventListener("click", () => {
+      if (!navigator.geolocation) { alert("Location is not available on this phone."); return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setPin(pos.coords.latitude, pos.coords.longitude),
+        () => alert("Could not read your location. Tap the map instead.")
+      );
+    });
+    $("clearPin").addEventListener("click", () => {
+      state.lat = ""; state.lng = "";
+      if (marker && map) { map.removeLayer(marker); marker = null; }
+      $("mapNote").textContent = "No pin yet. You can skip this.";
+    });
+    $("getStarted").addEventListener("click", () => {
+      show(1);
+      $("desk").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $("sendWa").addEventListener("click", () => {
+      window.open("https://wa.me/" + DESK + "?text=" + encodeURIComponent(buildMessage()), "_blank");
+    });
+  </script>
+</body>
+</html>
